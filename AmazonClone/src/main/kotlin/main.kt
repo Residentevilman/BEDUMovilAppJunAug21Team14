@@ -17,6 +17,7 @@ import kotlin.reflect.typeOf
 //1.- For handling user registration
 var registrationUsername: String = ""
 var registrationEmail: String = ""
+var registeredEmails = arrayListOf<String>()
 var registrationPassword: String = ""
 var registrationPasswordConfirmation: String = ""
 
@@ -74,6 +75,36 @@ fun validCredentials(): Boolean {
     return validUsername() && validPassword()
 }
 
+//Function to validate the required fields of the registration form
+fun validRegistration(): Boolean {
+    fun validateUsername(): Boolean {
+        return if (registeredUsers.containsKey(registrationUsername)) {
+            println("Username already exists, please enter a different one")
+            false
+        } else
+            true
+    }
+
+    fun validateEmail(): Boolean {
+        return if (registeredEmails.contains(registrationEmail)) {
+            println("Email already exists, please enter a different one")
+            false
+        } else
+            true
+    }
+
+    fun validatePasswords(): Boolean {
+        return if (registrationPassword == registrationPasswordConfirmation)
+            true
+        else {
+            println("Passwords don't match")
+            false
+        }
+    }
+
+    return validateUsername() && validateEmail() && validatePasswords()
+}
+
 //TODO: Validate for nulls
 fun main() {
 
@@ -103,7 +134,7 @@ fun main() {
                         //Validate user input: if everything is ok, set session variable to true
                         session = validCredentials()
                         if (session){
-                            println("Login successful! \n Welcome $username")
+                            println("Login successful! \nWelcome $username")
                             break
                         } else {
                             println("Username or password are incorrect!")
@@ -115,21 +146,33 @@ fun main() {
                 }
             }
             2.toByte() -> {
-                //Register path
-                println("Please enter an username")
-                registrationUsername = readLine()!!
-                //Validate if username already exists
-                println("Please enter an email")
-                registrationEmail = readLine()!!
-                //Extra validation: Check for duplicate emails
-                println("Please enter a password")
-                //Extra validation: Check user password structure
-                registrationPassword = readLine()!!
-                println("Please re-enter your password")
-                registrationPasswordConfirmation = readLine()!!
-                //Validate if passwords match
-                //If everything is ok, set session variable to true
-                session = true
+                do {
+                    //Register path
+                    var thirdOption: Byte = 1
+                    println("Please enter an username")
+                    registrationUsername = readLine()!!
+                    println("Please enter an email")
+                    registrationEmail = readLine()!!
+                    println("Please enter a password")
+                    //Extra validation: Check user password structure
+                    registrationPassword = readLine()!!
+                    println("Please re-enter your password")
+                    registrationPasswordConfirmation = readLine()!!
+
+                    //If everything is ok, set session variable to true
+                    session = validRegistration()
+                    if (session){
+                        //Add new user into the system
+                        registeredUsers.put(registrationUsername, registrationPassword)
+                        registeredEmails.add(registrationEmail)
+                        println("New user registered successfully! \nWelcome $registrationUsername")
+                        break
+                    } else {
+                        println("1.- Try again")
+                        println("2.- Return to main menu")
+                        thirdOption = readLine()!!.toByte()
+                    }
+                } while (thirdOption != 2.toByte())
             }
             3.toByte() -> firstOption = 3
         }
