@@ -1,3 +1,5 @@
+import Models.User
+
 /*Amazon Clone is an app that will mimic the main functions that Amazon handles:
 1.- Be able to register an user
 2.- Be able to login an user
@@ -11,19 +13,22 @@
 - Monitor the product delivery
 * */
 
+//TODO: Create product class
+
 //Variables to be used in our app:
 //1.- For handling user registration
 var registrationUsername: String = ""
 var registrationEmail: String = ""
-var registeredEmails = arrayListOf<String>()
+//var registeredEmails = arrayListOf<String>()
 var registrationPassword: String = ""
 var registrationPasswordConfirmation: String = ""
+var registeredUsers = arrayListOf<User>()
 
 //2.- For handling logging and session
 var username: String = ""
 var password: String = ""
 var session: Boolean = false
-var registeredUsers = mutableMapOf<String, String>()
+//var registeredUsers = mutableMapOf<String, String>()
 
 //3.- For uploading a product
 var productName: String = ""
@@ -60,36 +65,28 @@ var orderStatus: String = ""
 
 //Function to validate if user username and password are correct
 fun validCredentials(): Boolean {
-    var registeredPassword = ""
+    var valid: Boolean = false
 
-    fun validUsername(): Boolean {
-        //Check to see if the username exists in the registered users Map
-        return if (registeredUsers.containsKey(username)){
-            registeredPassword = registeredUsers.getValue(username)
-            true
-        } else
-            false
-    }
+    for (user in registeredUsers)
+        valid = user.username == username && user.password == password
 
-    fun validPassword(): Boolean {
-        return registeredPassword == password
-    }
-
-    return validUsername() && validPassword()
+    return valid
 }
 
 //Function to validate the required fields of the registration form
 fun validRegistration(): Boolean {
-    fun validateUsername(): Boolean {
-        return if (registeredUsers.containsKey(registrationUsername)) {
+    var valid: Boolean = false
+
+    fun validateUsername(username: String): Boolean {
+        return if (username == registrationUsername) {
             println("Username already exists, please enter a different one")
             false
         } else
             true
     }
 
-    fun validateEmail(): Boolean {
-        return if (registeredEmails.contains(registrationEmail)) {
+    fun validateEmail(email: String): Boolean {
+        return if (email == registrationEmail) {
             println("Email already exists, please enter a different one")
             false
         } else
@@ -105,7 +102,16 @@ fun validRegistration(): Boolean {
         }
     }
 
-    return validateUsername() && validateEmail() && validatePasswords()
+    //If a username exists loop and check for duplicate
+    //If not, just return true
+    if (registeredUsers.isEmpty())
+        valid = validatePasswords()
+    else {
+        for (user in registeredUsers)
+            valid = validateUsername(user.username) && validateEmail(user.email) && validatePasswords()
+    }
+
+    return valid
 }
 
 //Function to check if a proper product was introduced
@@ -135,8 +141,10 @@ fun validateProduct(): Boolean {
 //TODO: Optimize code
 //TODO: Validate input types (all read lines are strings now)
 //TODO: Validate for user entering numbers bigger than byte maximum (-127 to 127)
+//TODO: Add logout functionality
+//TODO: Exit once logged in should get user back to main menu, not exit the app
 fun main() {
-    var firstOption: Byte
+    var firstOption: Byte = 1
     //Do while to keep the user iterating over the menu options till he decides to leave
     do {
         //Check to see if user has logged in
@@ -183,6 +191,7 @@ fun main() {
                         println("Please enter an username")
                         registrationUsername = readLine()!!
                         println("Please enter an email")
+                        //Extra validation, check user email structure
                         registrationEmail = readLine()!!
                         println("Please enter a password")
                         //Extra validation: Check user password structure
@@ -194,8 +203,9 @@ fun main() {
                         session = validRegistration()
                         if (session){
                             //Add new user into the system
-                            registeredUsers[registrationUsername] = registrationPassword
-                            registeredEmails.add(registrationEmail)
+                            //Create new user Object and add it to the list of Users
+                            //registeredUsers[registrationUsername] = registrationPassword
+                            registeredUsers.add(User(registrationUsername, registrationEmail, registrationPassword, true))
                             println("New user registered successfully! \nWelcome $registrationUsername")
                             break
                         } else {
@@ -214,9 +224,9 @@ fun main() {
             println("1.- Register an item")
             println("2.- Buy an item")
             println("3.- Exit")
-            firstOption = readLine()!!.toByte()
+            var fourthOption = readLine()!!.toByte()
 
-            when(firstOption) {
+            when(fourthOption) {
                 1.toByte() -> {
                     do {
                         //Register path
@@ -255,7 +265,7 @@ fun main() {
                 2.toByte() -> {
                     //TODO: Define logic for buying a product
                 }
-                3.toByte() -> firstOption = 3
+                3.toByte() -> session = false
                 else -> println("Please enter a valid option")
             }
         }
