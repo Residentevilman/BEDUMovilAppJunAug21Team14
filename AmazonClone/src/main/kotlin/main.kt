@@ -1,3 +1,4 @@
+import Models.Product
 import Models.User
 
 /*Amazon Clone is an app that will mimic the main functions that Amazon handles:
@@ -13,7 +14,7 @@ import Models.User
 - Monitor the product delivery
 * */
 
-//TODO: Create product class
+//TODO: Use user isLogged attribute instead of global session variable
 
 //Variables to be used in our app:
 //1.- For handling user registration
@@ -22,7 +23,7 @@ var registrationEmail: String = ""
 //var registeredEmails = arrayListOf<String>()
 var registrationPassword: String = ""
 var registrationPasswordConfirmation: String = ""
-var registeredUsers = arrayListOf<User>()
+var registeredUsersList = arrayListOf<User>()
 
 //2.- For handling logging and session
 var username: String = ""
@@ -37,10 +38,10 @@ var validCategories = setOf("clothes", "technology", "home", "food", "health")
 var productStatus: String = ""
 var validStatus = setOf("new", "pre-owned", "owned")
 var productDescription: String = ""
-var productPrice: Int = 0
+var productPrice: Float = 0f
 var productAddedCorrectly: Boolean = false
 //Consider substituting for an object. Simplifying implementation for now
-var productsList = arrayListOf<String>()
+var registeredProductsList = arrayListOf<Product>()
 
 //4.- For buying a product
 var productCart = listOf<String>()
@@ -67,7 +68,7 @@ var orderStatus: String = ""
 fun validCredentials(): Boolean {
     var valid: Boolean = false
 
-    for (user in registeredUsers)
+    for (user in registeredUsersList)
         valid = user.username == username && user.password == password
 
     return valid
@@ -104,10 +105,10 @@ fun validRegistration(): Boolean {
 
     //If a username exists loop and check for duplicate
     //If not, just return true
-    if (registeredUsers.isEmpty())
+    if (registeredUsersList.isEmpty())
         valid = validatePasswords()
     else {
-        for (user in registeredUsers)
+        for (user in registeredUsersList)
             valid = validateUsername(user.username) && validateEmail(user.email) && validatePasswords()
     }
 
@@ -161,7 +162,7 @@ fun main() {
             when (firstOption) {
                 1.toByte() -> {
                     //Login path
-                    if (registeredUsers.isEmpty()) {
+                    if (registeredUsersList.isEmpty()) {
                         println("No users have been registered in the system. \nPlease register one first before attempting to login")
                     } else {
                         do {
@@ -205,7 +206,7 @@ fun main() {
                             //Add new user into the system
                             //Create new user Object and add it to the list of Users
                             //registeredUsers[registrationUsername] = registrationPassword
-                            registeredUsers.add(User(registrationUsername, registrationEmail, registrationPassword, true))
+                            registeredUsersList.add(User(registrationUsername, registrationEmail, registrationPassword, true))
                             println("New user registered successfully! \nWelcome $registrationUsername")
                             break
                         } else {
@@ -246,13 +247,13 @@ fun main() {
                         //Extra validation: check for description length (i.e, 200 words)
                         productDescription = readLine()!!
                         println("Please enter the product price (in USD)")
-                        productPrice = readLine()?.toInt()!!
+                        productPrice = readLine()?.toFloat()!!
 
                         //If everything is ok, set productAddedCorrectly variable to true
                         productAddedCorrectly = validateProduct()
                         if (productAddedCorrectly){
                             //Add new product into the system
-                            productsList.add(productName)
+                            registeredProductsList.add(Product(productName, productCategory, productStatus, productDescription, productPrice))
                             println("New product registered successfully!")
                             break
                         } else {
