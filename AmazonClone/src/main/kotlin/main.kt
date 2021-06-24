@@ -1,5 +1,5 @@
-import Models.Product
-import Models.User
+import models.Product
+import models.User
 
 /*Amazon Clone is an app that will mimic the main functions that Amazon handles:
 1.- Be able to register an user
