@@ -15,6 +15,8 @@ import java.util.regex.Pattern
 - Monitor the product delivery
 * */
 
+//If code fails to compile because Redeclaration error, use: ./gradlew clean
+
 //TODO: Define private variables in class for security
 //TODO: Define class as data class if necessary
 //TODO: Optimize isLogged property usage
@@ -117,6 +119,29 @@ fun validRegistration(): Boolean {
         }
     }
 
+    fun isPasswordSafe(password: String): Boolean{
+        return if (Pattern.compile("^" +
+                    //"(?=.*[0-9])" +         //at least 1 digit
+                    //"(?=.*[a-z])" +         //at least 1 lower case letter
+                    //"(?=.*[A-Z])" +         //at least 1 upper case letter
+                    "(?=.*[a-zA-Z])" +      //any letter
+                    "(?=.*[@#$%^&+=])" +    //at least 1 special character
+                    "(?=\\S+$)" +           //no white spaces
+                    ".{8,}" +               //at least 8 characters
+                    "$").matcher(password).matches())
+            true
+        else {
+            println("Password structure invalid, please follow this guidelines:")
+            println("At least one digit (0-9)")
+            println("At least one lower case letter (a-z)")
+            println("At least one upper case letter (A-Z)")
+            println("At least one special character (@#\\$%^&+=)")
+            println("No white spaces")
+            println("At least 8 characters")
+            false
+        }
+    }
+
     fun validatePasswords(): Boolean {
         return if (registrationPassword == registrationPasswordConfirmation)
             true
@@ -129,10 +154,10 @@ fun validRegistration(): Boolean {
     //If a username exists loop and check for duplicate
     //If not, just return true
     if (registeredUsersList.isEmpty())
-        valid = isEmailValid(registrationEmail) && validatePasswords()
+        valid = isEmailValid(registrationEmail) && validatePasswords() && isPasswordSafe(registrationPassword)
     else {
         for (oneUser in registeredUsersList) {
-            if(validateUsername(oneUser.username) && validateEmail(oneUser.email) && isEmailValid(registrationEmail) && validatePasswords()){
+            if(validateUsername(oneUser.username) && validateEmail(oneUser.email) && isEmailValid(registrationEmail) && validatePasswords() && isPasswordSafe(registrationPassword)){
                 valid = true
             }
         }
