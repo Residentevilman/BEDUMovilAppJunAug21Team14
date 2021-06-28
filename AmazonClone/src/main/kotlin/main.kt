@@ -168,6 +168,7 @@ fun validRegistration(): Boolean {
 
 //Function to check if a proper product was introduced
 fun validateProduct(): Boolean {
+
     fun validCategory(): Boolean {
         return if (validCategories.contains(productCategory.lowercase()))
             true
@@ -186,7 +187,16 @@ fun validateProduct(): Boolean {
         }
     }
 
-    return validCategory() && validStatus()
+    fun validDescription(): Boolean {
+        return if (productDescription.length > 200){
+            println("Product description should be less than 200 words")
+            false
+        }
+        else
+            true
+    }
+
+    return validCategory() && validStatus() && validDescription()
 }
 
 fun userLogged(): Boolean {
@@ -263,7 +273,6 @@ fun main() {
                         println("Please enter an email")
                         registrationEmail = readLine()!!
                         println("Please enter a password")
-                        //Extra validation: Check user password structure
                         registrationPassword = readLine()!!
                         println("Please re-enter your password")
                         registrationPasswordConfirmation = readLine()!!
@@ -299,7 +308,6 @@ fun main() {
                     do {
                         //Register path
                         var secondOption: Byte
-                        //Extra validation: Check if product already exists
                         println("Please enter the product name")
                         productName = readLine()!!
                         println("Please enter the product category")
