@@ -1,5 +1,6 @@
 import models.Product
 import models.User
+import java.util.regex.Pattern
 
 /*Amazon Clone is an app that will mimic the main functions that Amazon handles:
 1.- Be able to register an user
@@ -99,6 +100,23 @@ fun validRegistration(): Boolean {
             true
     }
 
+    //Function to validate email address structure
+    fun isEmailValid(email: String): Boolean {
+        return if (Pattern.compile(
+            "^(([\\w-]+\\.)+[\\w-]+|([a-zA-Z]|[\\w-]{2,}))@"
+                    + "((([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\\.([0-1]?"
+                    + "[0-9]{1,2}|25[0-5]|2[0-4][0-9])\\."
+                    + "([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\\.([0-1]?"
+                    + "[0-9]{1,2}|25[0-5]|2[0-4][0-9]))|"
+                    + "([a-zA-Z]+[\\w-]+\\.)+[a-zA-Z]{2,4})$"
+        ).matcher(email).matches())
+            true
+        else {
+            println("Email structure invalid, please follow email@domain.com")
+            false
+        }
+    }
+
     fun validatePasswords(): Boolean {
         return if (registrationPassword == registrationPasswordConfirmation)
             true
@@ -111,10 +129,10 @@ fun validRegistration(): Boolean {
     //If a username exists loop and check for duplicate
     //If not, just return true
     if (registeredUsersList.isEmpty())
-        valid = validatePasswords()
+        valid = isEmailValid(registrationEmail) && validatePasswords()
     else {
         for (oneUser in registeredUsersList) {
-            if(validateUsername(oneUser.username) && validateEmail(oneUser.email) && validatePasswords()){
+            if(validateUsername(oneUser.username) && validateEmail(oneUser.email) && isEmailValid(registrationEmail) && validatePasswords()){
                 valid = true
             }
         }
@@ -170,7 +188,6 @@ fun logout() {
 //TODO: Optimize code
 //TODO: Validate input types (all read lines are strings now)
 //TODO: Validate for user entering numbers bigger than byte maximum (-127 to 127)
-//TODO: Exit once logged in should get user back to main menu, not exit the app
 fun main() {
     var firstOption: Byte = 1
     //Do while to keep the user iterating over the menu options till he decides to leave
@@ -219,7 +236,6 @@ fun main() {
                         println("Please enter an username")
                         registrationUsername = readLine()!!
                         println("Please enter an email")
-                        //Extra validation, check user email structure
                         registrationEmail = readLine()!!
                         println("Please enter a password")
                         //Extra validation: Check user password structure
