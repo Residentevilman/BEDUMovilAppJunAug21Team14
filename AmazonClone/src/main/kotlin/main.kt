@@ -14,7 +14,9 @@ import models.User
 - Monitor the product delivery
 * */
 
-//TODO: Use user isLogged attribute instead of global session variable
+//TODO: Define private variables in class for security
+//TODO: Define class as data class if necessary
+//TODO: Optimize isLogged property usage
 
 //Variables to be used in our app:
 //1.- For handling user registration
@@ -28,7 +30,8 @@ var registeredUsersList = arrayListOf<User>()
 //2.- For handling logging and session
 var username: String = ""
 var password: String = ""
-var session: Boolean = false
+var currentUser: Byte = 0
+//var session: Boolean = false
 //var registeredUsers = mutableMapOf<String, String>()
 
 //3.- For uploading a product
@@ -65,13 +68,15 @@ var trackingNumber: String = ""
 var orderStatus: String = ""
 
 //Function to validate if user username and password are correct
-fun validCredentials(): Boolean {
-    var valid: Boolean = false
+fun validCredentials() {
 
-    for (user in registeredUsersList)
-        valid = user.username == username && user.password == password
+    for ((index, oneUser) in registeredUsersList.withIndex()) {
+        if (oneUser.username == username && oneUser.password == password){
+            oneUser.isLogged = true
+            currentUser = index.toByte()
+        }
+    }
 
-    return valid
 }
 
 //Function to validate the required fields of the registration form
@@ -108,8 +113,11 @@ fun validRegistration(): Boolean {
     if (registeredUsersList.isEmpty())
         valid = validatePasswords()
     else {
-        for (user in registeredUsersList)
-            valid = validateUsername(user.username) && validateEmail(user.email) && validatePasswords()
+        for (oneUser in registeredUsersList) {
+            if(validateUsername(oneUser.username) && validateEmail(oneUser.email) && validatePasswords()){
+                valid = true
+            }
+        }
     }
 
     return valid
@@ -138,18 +146,37 @@ fun validateProduct(): Boolean {
     return validCategory() && validStatus()
 }
 
+fun userLogged(): Boolean {
+    var valid: Boolean = false
+
+    //If a username exists loop and check for duplicate
+    //If not, just return true
+    if (registeredUsersList.isNotEmpty()){
+        for (oneUser in registeredUsersList){
+            if(oneUser.isLogged)
+                valid = true
+        }
+    }
+
+    return valid
+}
+
+fun logout() {
+    registeredUsersList.elementAt(currentUser.toInt()).isLogged = false
+    currentUser = 0
+}
+
 //TODO: Validate for nulls
 //TODO: Optimize code
 //TODO: Validate input types (all read lines are strings now)
 //TODO: Validate for user entering numbers bigger than byte maximum (-127 to 127)
-//TODO: Add logout functionality
 //TODO: Exit once logged in should get user back to main menu, not exit the app
 fun main() {
     var firstOption: Byte = 1
     //Do while to keep the user iterating over the menu options till he decides to leave
     do {
         //Check to see if user has logged in
-        if (!session){
+        if (!userLogged()){
             //Show welcome menu
             println("\nWelcome to <name in progress>!")
             println("What do you want to do?")
@@ -172,8 +199,8 @@ fun main() {
                             println("Please enter your password")
                             password = readLine()!!
                             //Validate user input: if everything is ok, set session variable to true
-                            session = validCredentials()
-                            if (session){
+                            validCredentials()
+                            if (registeredUsersList.elementAt(currentUser.toInt()).isLogged){
                                 println("Login successful! \nWelcome $username")
                                 break
                             } else {
@@ -201,8 +228,7 @@ fun main() {
                         registrationPasswordConfirmation = readLine()!!
 
                         //If everything is ok, set session variable to true
-                        session = validRegistration()
-                        if (session){
+                        if (validRegistration()){
                             //Add new user into the system
                             //Create new user Object and add it to the list of Users
                             //registeredUsers[registrationUsername] = registrationPassword
@@ -224,7 +250,7 @@ fun main() {
             println("\nWhat would you like to do?")
             println("1.- Register an item")
             println("2.- Buy an item")
-            println("3.- Exit")
+            println("3.- Logout")
             var fourthOption = readLine()!!.toByte()
 
             when(fourthOption) {
@@ -266,7 +292,9 @@ fun main() {
                 2.toByte() -> {
                     //TODO: Define logic for buying a product
                 }
-                3.toByte() -> session = false
+                3.toByte() -> {
+                    logout()
+                }
                 else -> println("Please enter a valid option")
             }
         }
