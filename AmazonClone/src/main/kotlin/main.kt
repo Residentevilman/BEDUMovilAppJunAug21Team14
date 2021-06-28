@@ -1,5 +1,6 @@
 import models.Product
 import models.User
+import java.lang.NumberFormatException
 import java.util.regex.Pattern
 
 /*Amazon Clone is an app that will mimic the main functions that Amazon handles:
@@ -222,7 +223,6 @@ fun logout() {
 //TODO: Validate for nulls
 //TODO: Optimize code
 //TODO: Validate input types (all read lines are strings now)
-//TODO: Validate for user entering numbers bigger than byte maximum (-127 to 127)
 fun main() {
     var firstOption: Byte = 1
     //Do while to keep the user iterating over the menu options till he decides to leave
@@ -235,7 +235,11 @@ fun main() {
             println("1.- Login")
             println("2.- Register")
             println("3.- Exit")
-            firstOption = readLine()?.toByte()!!
+            firstOption = try {
+                readLine()?.toByte()!!
+            } catch (e: NumberFormatException){
+                4
+            }
 
             //Decision path: login, register or exit
             when (firstOption) {
@@ -259,7 +263,12 @@ fun main() {
                                 println("Username or password are incorrect!")
                                 println("1.- Try again")
                                 println("2.- Return to main menu")
-                                secondOption = readLine()!!.toByte()
+                                secondOption = try {
+                                    readLine()?.toByte()!!
+                                } catch (e: NumberFormatException){
+                                    println("Option not valid, returning to main menu")
+                                    2
+                                }
                             }
                         } while (secondOption != 2.toByte())
                     }
@@ -288,7 +297,12 @@ fun main() {
                         } else {
                             println("1.- Try again")
                             println("2.- Return to main menu")
-                            thirdOption = readLine()!!.toByte()
+                            thirdOption = try {
+                                readLine()?.toByte()!!
+                            } catch (e: NumberFormatException){
+                                println("Option not valid, returning to main menu")
+                                2
+                            }
                         }
                     } while (thirdOption != 2.toByte())
                 }
@@ -301,7 +315,11 @@ fun main() {
             println("1.- Register an item")
             println("2.- Buy an item")
             println("3.- Logout")
-            var fourthOption = readLine()!!.toByte()
+            var fourthOption = try {
+                readLine()?.toByte()!!
+            } catch (e: NumberFormatException){
+                4
+            }
 
             when(fourthOption) {
                 1.toByte() -> {
@@ -322,7 +340,16 @@ fun main() {
                         //Extra validation: check for description length (i.e, 200 words)
                         productDescription = readLine()!!
                         println("Please enter the product price (in USD)")
-                        productPrice = readLine()?.toFloat()!!
+                        var test: Boolean
+                        do {
+                            try {
+                                productPrice = readLine()?.toFloat()!!
+                                test = true
+                            } catch (e: NumberFormatException){
+                                println("Value invalid, please enter a valid price")
+                                test = false
+                            }
+                        } while (!test)
 
                         //If everything is ok, set productAddedCorrectly variable to true
                         productAddedCorrectly = validateProduct()
@@ -334,7 +361,12 @@ fun main() {
                         } else {
                             println("1.- Try again")
                             println("2.- Return to main menu")
-                            secondOption = readLine()!!.toByte()
+                            secondOption = try {
+                                readLine()?.toByte()!!
+                            } catch (e: NumberFormatException){
+                                println("Option not valid, returning to main menu")
+                                2
+                            }
                         }
                     } while (secondOption != 2.toByte())
                 }
