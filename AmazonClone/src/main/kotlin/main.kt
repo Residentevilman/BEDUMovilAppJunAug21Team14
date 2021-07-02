@@ -8,7 +8,6 @@ import java.util.regex.Pattern
 2.- Be able to login an user
 3.- Be able to upload products for sale
 4.- Be able to buy products (complete checkout process*)
-
 *The complete checkout process includes:
 - Adding an item to the cart
 - View the cart and the total
@@ -32,8 +31,11 @@ var registrationPasswordConfirmation: String = ""
 var registeredUsersList = arrayListOf<User>()
 
 //2.- For handling logging and session
-var username: String = ""
-var password: String = ""
+class User{
+    var username: String = ""
+    var password: String = ""
+}
+
 var currentUser: Byte = 0
 //var session: Boolean = false
 //var registeredUsers = mutableMapOf<String, String>()
@@ -72,7 +74,7 @@ var trackingNumber: String = ""
 var orderStatus: String = ""
 
 //Function to validate if user username and password are correct
-fun validCredentials() {
+fun validCredentials(username:String,password:String) {
 
     for ((index, oneUser) in registeredUsersList.withIndex()) {
         if (oneUser.username == username && oneUser.password == password){
@@ -106,13 +108,13 @@ fun validRegistration(): Boolean {
     //Function to validate email address structure
     fun isEmailValid(email: String): Boolean {
         return if (Pattern.compile(
-            "^(([\\w-]+\\.)+[\\w-]+|([a-zA-Z]|[\\w-]{2,}))@"
-                    + "((([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\\.([0-1]?"
-                    + "[0-9]{1,2}|25[0-5]|2[0-4][0-9])\\."
-                    + "([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\\.([0-1]?"
-                    + "[0-9]{1,2}|25[0-5]|2[0-4][0-9]))|"
-                    + "([a-zA-Z]+[\\w-]+\\.)+[a-zA-Z]{2,4})$"
-        ).matcher(email).matches())
+                "^(([\\w-]+\\.)+[\\w-]+|([a-zA-Z]|[\\w-]{2,}))@"
+                        + "((([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\\.([0-1]?"
+                        + "[0-9]{1,2}|25[0-5]|2[0-4][0-9])\\."
+                        + "([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\\.([0-1]?"
+                        + "[0-9]{1,2}|25[0-5]|2[0-4][0-9]))|"
+                        + "([a-zA-Z]+[\\w-]+\\.)+[a-zA-Z]{2,4})$"
+            ).matcher(email).matches())
             true
         else {
             println("Email structure invalid, please follow email@domain.com")
@@ -168,6 +170,7 @@ fun validRegistration(): Boolean {
 }
 
 //Function to check if a proper product was introduced
+@OptIn(ExperimentalStdlibApi::class)
 fun validateProduct(): Boolean {
 
     fun validCategory(): Boolean {
@@ -250,14 +253,15 @@ fun main() {
                     } else {
                         do {
                             var secondOption: Byte
+                            val user=User()
                             println("Please enter your username")
-                            username = readLine()!!
+                            user.username = readLine()!!
                             println("Please enter your password")
-                            password = readLine()!!
+                            user.password = readLine()!!
                             //Validate user input: if everything is ok, set session variable to true
-                            validCredentials()
+                            validCredentials(user.username,user.password)
                             if (registeredUsersList.elementAt(currentUser.toInt()).isLogged){
-                                println("Login successful! \nWelcome $username")
+                                println("Login successful! \nWelcome $user.username")
                                 break
                             } else {
                                 println("Username or password are incorrect!")
@@ -385,6 +389,3 @@ fun main() {
     //Goodbye message
     println("Thanks for using our app")
 }
-
-
-
